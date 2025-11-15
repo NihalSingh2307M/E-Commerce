@@ -36,7 +36,7 @@ useEffect(() => {
               {
                 productData.image.map((item,index) =>(
                   <img onClick={()=>setImage(item)} src={item} key={index}
-                  className=' w-[24%] sm:w-full sm:mb-3 flex-shrink-0 cursor-pointer '
+                  className=' w-[24%] sm:w-full sm:mb-3 flex shrink-0 cursor-pointer '
                   alt="" />
                 ))
               }
@@ -78,14 +78,14 @@ useEffect(() => {
 
       {/*-------------Description and Review Section -------------------------*/}
       <div className='mt-20 '>
-        <div className='flex'>
+        {/* <div className='flex'>
           <b className='border px-5 py-3 text-sm '>Description </b>
           <p className='border px-5 py-3 text-sm '>Reviews(122)</p>
         </div>
         <div className='flex flex-col gap-4 border px-6 py-6 text-sm text-500 '>
           <p>Lorem ipsum, dolor sit amet consectetur adipisicing elit. Voluptatum, aut quas pariatur iste molestias dolorum porro esse enim! Dicta, odit.</p>
           <p>Lorem ipsum dolor, sit amet consectetur adipisicing elit. Quaerat veritatis sed nesciunt iste, quae similique quis nemo. Vitae, commodi in.</p>
-        </div>
+        </div> */}
         {/*----------display related products------------*/}
         <RelatableProducts category={productData.category} subCategory={productData.subCategory}/>
       </div>
