@@ -90,7 +90,7 @@ const Navbar = () => {
         <img onClick={() => setVisible(true)} src={assets.menu_icon} className='w-5 cursor-pointer sm:hidden' alt="" />
       </div>
       {/* Sidebar menu fot small screen */}
-      <div className={`absolute top-0 right-0 bottom-0 overflow-hidden bg-white translate-all ${visible ? 'w-full' : 'w-0'}`}>
+      <div className={`absolute top-0 right-0 bottom-0 w-full overflow-y-auto bg-white z-50 transition-transform duration-300 ease-in-out ${visible ? 'translate-x-0' : 'translate-x-full'}`}>
         <div className='flex flex-col text-gray-600'>
           <div onClick={() => setVisible(false)} className='flex items-center gap-4 p-3 cursor-pointer'>
             <img src={assets.dropdown_icon} className='h-4 rotate-180' alt="" />
