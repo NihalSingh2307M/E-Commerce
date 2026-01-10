@@ -1,10 +1,13 @@
 import{v2 as cloudinary } from 'cloudinary'
 import productModel from "../models/productModel.js"
+import connectDB from "../config/mongodb.js";
 //function for add product
 
 const addProduct = async (req,res) =>{
 
     try{
+
+        await connectDB();
         const {name,description,price,category,subCategory,sizes,bestseller} = req.body;
 
         const image1 = req.files.image1 && req.files.image1[0]
@@ -55,6 +58,7 @@ const addProduct = async (req,res) =>{
 const listProduct = async (req,res) =>{
 
     try{
+        await connectDB();
         const product = await productModel.find({});
         res.json({success:true,products:product})
     }catch(error){
@@ -69,6 +73,7 @@ const listProduct = async (req,res) =>{
 const removeProduct = async (req,res) =>{
 
     try{
+        await connectDB();
         await productModel.findByIdAndDelete(req.body.id)
         res.json({success:true,message:"product removed"})
     }catch(error){
@@ -83,6 +88,7 @@ const removeProduct = async (req,res) =>{
 const singleProduct = async (req,res) =>{
 
     try{
+        await connectDB();
         const {productId}= req.body;
         const product = await productModel.findById(productId)
         res.json({success:true,product})
