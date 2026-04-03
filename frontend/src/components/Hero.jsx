@@ -9,8 +9,7 @@ const Hero = () => {
   const imgRef = useRef(null)
 
   useEffect(() => {
-
-    // ── ANIMATION 4 · clip-path image reveal ──────────────────────
+    // clip-path image reveal — UNCHANGED
     gsap.from(imgRef.current, {
       clipPath: 'inset(0 100% 0 0)',
       duration: 1.3,
@@ -18,35 +17,14 @@ const Hero = () => {
       delay: 0.2,
     })
 
-    // ── ANIMATION 2 · staggered text reveal ───────────────────────
+    // staggered text reveal — UNCHANGED
     const tl = gsap.timeline({ delay: 0.1 })
+    tl.from('.hero-line', { scaleX: 0, transformOrigin: 'left center', duration: 0.4, ease: 'power2.out' })
+      .from('.hero-label', { opacity: 0, x: -15, duration: 0.4, ease: 'power2.out' }, '-=0.2')
+      .from('.hero-heading', { opacity: 0, y: 35, duration: 0.7, ease: 'power3.out' }, '-=0.2')
+      .from('.hero-cta', { opacity: 0, x: -20, duration: 0.45, ease: 'power2.out' }, '-=0.3')
 
-    tl.from('.hero-line', {
-      scaleX: 0,
-      transformOrigin: 'left center',
-      duration: 0.4,
-      ease: 'power2.out',
-    })
-    .from('.hero-label', {
-      opacity: 0,
-      x: -15,
-      duration: 0.4,
-      ease: 'power2.out',
-    }, '-=0.2')
-    .from('.hero-heading', {
-      opacity: 0,
-      y: 35,
-      duration: 0.7,
-      ease: 'power3.out',
-    }, '-=0.2')
-    .from('.hero-cta', {
-      opacity: 0,
-      x: -20,
-      duration: 0.45,
-      ease: 'power2.out',
-    }, '-=0.3')
-
-    // ── ANIMATION 5 · scroll parallax on image ────────────────────
+    // scroll parallax — UNCHANGED
     gsap.to(imgRef.current, {
       yPercent: -12,
       ease: 'none',
@@ -54,46 +32,44 @@ const Hero = () => {
         trigger: imgRef.current,
         start: 'top top',
         end: 'bottom top',
-        scrub: 1,          // smooth scrub
+        scrub: 1,
       },
     })
 
-    // cleanup on unmount
     return () => ScrollTrigger.getAll().forEach(t => t.kill())
-
   }, [])
 
   return (
-    <div className='flex flex-col sm:flex-row border border-gray-400'>
+    <div className='flex flex-col sm:flex-row border border-[#DDDBD7] bg-[#fff7e6] mt-3' style={{ minHeight: '82vh' }}>
 
-      {/* left side */}
-      <div className='w-full sm:w-1/2 flex items-center justify-center py-10 sm:py-0'>
-        <div className='text-[#414141]'>
+      {/* Left */}
+      <div className='w-full sm:w-1/2 flex items-center justify-start py-10 sm:py-0 px-10 sm:px-16'>
+        <div className='text-[#1A1A1A]' style={{ fontFamily: "'Inter', sans-serif" }}>
 
           <div className='flex items-center gap-2'>
-            <p className='w-8 md:w-11 h-0.5 bg-[#414141] hero-line'></p>
-            <p className='font-medium text-sm md:text-base hero-label'>
-              Our BestSellers
+            <p className='w-8 md:w-11 h-1px bg-[#5C5244] hero-line'></p>
+            <p className='font-medium text-xs md:text-base tracking-[0.25em] uppercase text-[#6B6A66] hero-label'>
+              Our Bestsellers
             </p>
           </div>
 
-          <h1 className='prata-regular text-3xl sm:py-3 lg:text-5xl leading-relaxed hero-heading'>
+          <h1 className='prata-regular text-4xl sm:py-4 lg:text-6xl leading-tight tracking-tight text-[#1A1A1A] hero-heading'>
             Latest Arrival
           </h1>
 
-          <div className='flex items-center gap-2 hero-cta'>
-            <p className='font-semibold text-sm md:text-base'>Shop Now</p>
-            <p className='w-8 md:w-11 h-px bg-[#414141]'></p>
+          <div className='flex items-center gap-3 hero-cta group cursor-pointer'>
+            <p className='font-semibold text-sm md:text-base tracking-[0.15em] uppercase text-[#3A3A3A]'>Shop Now</p>
+            <p className='w-8 md:w-11 h-px bg-[#5C5244] transition-all duration-300 group-hover:w-14'></p>
           </div>
 
         </div>
       </div>
 
-      {/* right side */}
+      {/* Right */}
       <div className='w-full sm:w-1/2 overflow-hidden'>
         <img
           ref={imgRef}
-          className='w-full'
+          className='w-full h-full object-cover'
           src={assets.hero_img}
           alt=''
           style={{ willChange: 'transform, clip-path' }}

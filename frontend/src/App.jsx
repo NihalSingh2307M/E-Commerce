@@ -13,6 +13,7 @@ import Navbar from './components/Navbar'
 import Footer from './components/Footer'
 import Search from './components/Search'
 import ScrollTop from './components/ScrollTop'
+import PageTransition from './components/PageTransition'
 import { ToastContainer, } from 'react-toastify';
 import Verify from './pages/Verify'
 
@@ -24,6 +25,7 @@ const App = () => {
     <Navbar/>
     <Search/>
     <ScrollTop/>
+    <PageTransition>
     <Routes>
       <Route path='/' element={<Home/>} />
       <Route path='/home' element={<Home/>}/>
@@ -37,6 +39,7 @@ const App = () => {
       <Route path='/orders' element={<Order/>}  />
       <Route path='/verify' element={<Verify/>}  />
     </Routes>
+    </PageTransition>
     <Footer/>
   </div>
   )
