@@ -1,7 +1,7 @@
 import { useEffect, useRef } from 'react'
 import { useLocation } from 'react-router-dom'
 import gsap from 'gsap'
-
+//file typo error 
 const PageTransition = ({ children }) => {
     const location = useLocation()
     const overlayRef = useRef(null)
