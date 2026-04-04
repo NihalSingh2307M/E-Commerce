@@ -7,7 +7,7 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger'
 
 gsap.registerPlugin(ScrollTrigger)
 
-const HERO_DURATION = 1
+const HERO_DURATION = .3
 
 const LatestCollection = () => {
     const { products } = useContext(ShopContext)
