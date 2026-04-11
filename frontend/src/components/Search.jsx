@@ -4,28 +4,40 @@ import { assets } from '../assets/frontend_assets/assets';
 import { useLocation } from 'react-router-dom';
 
 const Search = () => {
-    
-    const {  search,setSearch,showSearch,setShowSearch } =  useContext(ShopContext);
-    const [visible,setVisible] = useState(false);
-    const location = useLocation();
+  const { search, setSearch, showSearch, setShowSearch } = useContext(ShopContext);
+  const [visible, setVisible] = useState(false);
+  const location = useLocation();
 
-    useEffect(()=>{
-        if(location.pathname.includes('collection') && showSearch){
-            setVisible(true);
-        }else{
-            setVisible(false)
-        }
+  useEffect(() => {
+    if (location.pathname.includes('collection') && showSearch) {
+      setVisible(true);
+    } else {
+      setVisible(false)
+    }
+  }, [location])
 
-    },[location])
   return showSearch ? (
-        <div className='border-t border-b bg-gray-50 text-center'>
-            <div className='inline-flex items-center justify-center border border-gray-400 px-5 py-2 my-5 mx-3 rounded-full  w-3/4 sm:w-1/2'>
-                <input value={search} onChange={(e)=>setSearch(e.target.value)} className=' flex-1 outline-none bg-inherit text-sm ' type="text" placeholder='Search' />
-                <img className='w-4' src={assets.search_icon} alt="" />
-            </div>
-            <img onClick={()=>setShowSearch(false)} className='inline w-3 cursor-pointer' src={assets.cross_icon} alt="" />
+    <div className='bg-[#F0EBE1] border-b border-[#E2D9CC] py-4 px-4 sm:px-0'>
+      <div className='flex items-center justify-center gap-3'>
+        <div className='flex items-center border border-[#E2D9CC] bg-[#F9F6F0] px-4 py-2.5 w-full max-w-md focus-within:border-[#B8956A] transition-colors duration-200'>
+          <img className='w-4 opacity-50 mr-3' src={assets.search_icon} alt='' />
+          <input
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className='flex-1 bg-transparent text-sm text-[#1C1C1C] placeholder-[#6B6560] jost font-light outline-none'
+            type='text'
+            placeholder='Search products...'
+          />
         </div>
-  ) :null
+        <button
+          onClick={() => setShowSearch(false)}
+          className='w-8 h-8 flex items-center justify-center hover:bg-[#E2D9CC] rounded-full transition-colors duration-200 shrink-0'
+        >
+          <img className='w-3' src={assets.cross_icon} alt='Close' />
+        </button>
+      </div>
+    </div>
+  ) : null
 }
 
 export default Search

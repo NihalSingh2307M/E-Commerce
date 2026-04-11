@@ -1,28 +1,70 @@
-import React from 'react'
+import React, { useLayoutEffect, useRef } from 'react'
 import { assets } from '../assets/frontend_assets/assets'
+import { gsap } from 'gsap'
+import { ScrollTrigger } from 'gsap/ScrollTrigger'
 
 const OurPolicy = () => {
+  const sectionRef = useRef(null)
+
+  /* ── Scroll reveal + icon hover ────────────────────────────────────── */
+  useLayoutEffect(() => {
+    if (!sectionRef.current) return
+
+    const ctx = gsap.context(() => {
+      gsap.registerPlugin(ScrollTrigger)
+
+      const items = sectionRef.current.querySelectorAll('.policy-item')
+
+      // Staggered fade + slide up on scroll
+      gsap.from(items, {
+        opacity: 0,
+        y: 50,
+        duration: 0.8,
+        stagger: 0.15,
+        ease: 'power2.out',
+        scrollTrigger: {
+          trigger: sectionRef.current,
+          start: 'top 80%',
+          once: true,
+        },
+      })
+
+      // Micro hover on each policy card — scale icon circle
+      items.forEach((item) => {
+        const circle = item.querySelector('.policy-icon-circle')
+        item.addEventListener('mouseenter', () =>
+          gsap.to(circle, { scale: 1.12, duration: 0.3, ease: 'power2.out' })
+        )
+        item.addEventListener('mouseleave', () =>
+          gsap.to(circle, { scale: 1, duration: 0.4, ease: 'power2.inOut' })
+        )
+      })
+    }, sectionRef)
+
+    return () => ctx.revert()
+  }, [])
+
+  const policies = [
+    { icon: assets.exchange_icon, title: 'Easy Exchange Policy', desc: 'Hassle-free exchange on all orders within 30 days' },
+    { icon: assets.quality_icon,  title: '7 Days Return Policy', desc: 'Free returns within 7 days, no questions asked' },
+    { icon: assets.support_img,   title: 'Best Customer Support', desc: 'Dedicated 24/7 support for all your queries' },
+  ]
+
   return (
-    <div className='flex flex-col sm:flex-row justify-around gap-12 sm:gap-2 text-center py-20 text-xs sm:text-sm md:text-base text-shadow-gray-700'>
-        
-        <div>
-            <img src={assets.exchange_icon} className='w-12 m-auto mb-5' alt="" />
-            <p className='font-semibold'> Easy Exchange Policy </p>
-            <p className='text-gray-400'> We Offer hassle free  exchange policy</p>
-        </div>
-
-        <div>
-            <img src={assets.quality_icon} className='w-12 m-auto mb-5' alt="" />
-            <p className='font-semibold'> 7 Days Return Policy </p>
-            <p className='text-gray-400'> We Offer 7 day free  exchange policy</p>
-        </div>
-
-        <div>
-            <img src={assets.support_img} className='w-12 m-auto mb-5' alt="" />
-            <p className='font-semibold'> Best Customer Support </p>
-            <p className='text-gray-400'> We Offer 24/7 Customer Support</p>
-        </div>
-
+    <div ref={sectionRef} className='my-14 sm:my-20 py-12 sm:py-16 border-y border-[#E2D9CC]'>
+      <div className='flex flex-col sm:flex-row justify-around gap-10 sm:gap-4 text-center'>
+        {policies.map((policy, i) => (
+          <div key={i} className='policy-item flex flex-col items-center gap-4 px-4 cursor-default'>
+            <div className='policy-icon-circle w-14 h-14 rounded-full bg-[#EDE0CE] flex items-center justify-center'>
+              <img src={policy.icon} className='w-6 h-6 object-contain' alt={policy.title} />
+            </div>
+            <div>
+              <p className='jost font-semibold text-[#1C1C1C] tracking-wide text-sm sm:text-base mb-1'>{policy.title}</p>
+              <p className='jost text-[#6B6560] text-xs sm:text-sm font-light leading-relaxed max-w-[180px] mx-auto'>{policy.desc}</p>
+            </div>
+          </div>
+        ))}
+      </div>
     </div>
   )
 }
