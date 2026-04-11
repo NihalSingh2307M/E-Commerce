@@ -1,22 +1,92 @@
-@import url('https://fonts.googleapis.com/css2?family=Prata&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Jost:wght@300;400;500;600&family=Prata&display=swap');
 @import "tailwindcss";
 
+:root {
+  --ivory: #F9F6F0;
+  --ivory-dark: #F0EBE1;
+  --ivory-border: #E2D9CC;
+  --charcoal: #1C1C1C;
+  --charcoal-mid: #3A3633;
+  --charcoal-light: #6B6560;
+  --gold: #B8956A;
+  --gold-light: #D4B896;
+  --gold-pale: #EDE0CE;
+}
 
-/* *{
-    font-family: Outfit;
-} */
+* {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  font-family: 'Jost', sans-serif;
+  background-color: var(--ivory);
+  color: var(--charcoal);
+}
+
 .prata-regular {
   font-family: "Prata", serif;
   font-weight: 400;
   font-style: normal;
 }
 
-::-webkit-scrollbar{
-  display: none;
+.playfair {
+  font-family: 'Playfair Display', serif;
 }
-@media (max-width:640px){
-  a.active{
-    background-color: black;
-    color: white;
+
+.jost {
+  font-family: 'Jost', sans-serif;
+}
+
+::-webkit-scrollbar {
+  width: 4px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--ivory);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--ivory-border);
+  border-radius: 2px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--gold-light);
+}
+
+::selection {
+  background: var(--gold-pale);
+  color: var(--charcoal);
+}
+
+input:focus, select:focus, textarea:focus {
+  outline: none;
+  border-color: var(--gold) !important;
+}
+
+@media (max-width: 640px) {
+  a.active {
+    background-color: var(--charcoal);
+    color: var(--ivory);
   }
+}
+
+/* Smooth checkbox */
+input[type="checkbox"] {
+  accent-color: var(--charcoal);
+}
+
+/* Number input arrows hide */
+input[type=number]::-webkit-inner-spin-button,
+input[type=number]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* Hero scroll indicator animation */
+@keyframes slideDown {
+  0%   { transform: translateY(-100%); opacity: 0; }
+  50%  { opacity: 1; }
+  100% { transform: translateY(200%); opacity: 0; }
 }
