@@ -17,8 +17,34 @@
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
+
+/* merged into one @theme (removed duplicate ones) */
 @theme {
   --font-sans: 'Inter', sans-serif;
+
+  /* Colors */
+  --color-ivory: #F7F6F4;
+  --color-ivory-dark: #F0EEE9;
+  --color-ivory-border: #E5E2DC;
+
+  --color-charcoal: #1C1A18;
+  --color-charcoal-mid: #4A4744;
+  --color-charcoal-light: #8A8682;
+
+  --color-gold: #B8956A;
+
+  /* Fonts */
+  --font-playfair: "Playfair Display", serif;
+
+  /* Typography scale */
+  --text-hero: clamp(4rem, 12vw, 7rem);
+  --text-display: clamp(4rem, 12vw, 7rem);
+
+  /* Radius */
+  --radius-full: 9999px;
+
+  /* Animation */
+  --animate-slideDown: slideDown 1.8s ease-in-out infinite;
 }
 
 body {
@@ -67,17 +93,13 @@ input:focus, select:focus, textarea:focus {
   outline: none;
   border-color: var(--gold) !important;
 }
+
 /*Home slide-down animation*/
-@theme {
-  --animate-slideDown: slideDown 1.8s ease-in-out infinite;
-  --text-display: clamp(4rem, 12vw, 7rem);
-}
-
-
+/* kept only ONE keyframe (removed duplicate) */
 @keyframes slideDown {
-  0% { transform: translateY(-20px); opacity: 0; }
-  50% { transform: translateY(0); opacity: 1; }
-  100% { transform: translateY(20px); opacity: 0; }
+  0%   { transform: translateY(-100%); opacity: 0; }
+  50%  { opacity: 1; }
+  100% { transform: translateY(200%); opacity: 0; }
 }
 
 @media (max-width: 640px) {
@@ -97,11 +119,4 @@ input[type=number]::-webkit-inner-spin-button,
 input[type=number]::-webkit-outer-spin-button {
   -webkit-appearance: none;
   margin: 0;
-}
-
-/* Hero scroll indicator animation */
-@keyframes slideDown {
-  0%   { transform: translateY(-100%); opacity: 0; }
-  50%  { opacity: 1; }
-  100% { transform: translateY(200%); opacity: 0; }
 }
