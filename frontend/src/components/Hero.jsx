@@ -4,66 +4,116 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { assets } from '../assets/frontend_assets/assets'
 import { Link } from 'react-router-dom'
 
-gsap.registerPlugin(ScrollTrigger)
-
 const Hero = () => {
   const containerRef = useRef(null)
   const imgRef       = useRef(null)
   const ctaRef       = useRef(null)
   const scrollIndRef = useRef(null)
 
+  /* ── 1. Entry animation ─────────────────────────────────────────── */
   useLayoutEffect(() => {
     if (!containerRef.current) return
+
     const ctx = gsap.context(() => {
-      gsap.from(imgRef.current, { scale: 1.1, opacity: 0, duration: 1.8, ease: 'power3.out', delay: 0.1 })
-      const tl = gsap.timeline({ delay: 0.5 })
-      tl.from('.hero-label',   { opacity: 0, y: 24, duration: 0.55, ease: 'power2.out' })
-        .from('.hero-line',    { opacity: 0, scaleX: 0, transformOrigin: 'left', duration: 0.6, ease: 'power3.out' }, '-=0.2')
-        .from('.hero-heading', { opacity: 0, y: 50, duration: 1, ease: 'power3.out', stagger: 0.12 }, '-=0.3')
-        .from('.hero-sub',     { opacity: 0, y: 20, duration: 0.6, ease: 'power2.out' }, '-=0.4')
-        .from('.hero-cta',     { opacity: 0, y: 20, duration: 0.5, ease: 'power2.out' }, '-=0.3')
-        .from('.hero-stat',    { opacity: 0, y: 20, duration: 0.55, stagger: 0.08, ease: 'power2.out' }, '-=0.25')
-        .from('.hero-scroll',  { opacity: 0, duration: 0.5 }, '-=0.3')
-        .from('.hero-year',    { opacity: 0, duration: 0.5 }, '-=0.4')
-      gsap.to(imgRef.current, {
-        yPercent: -12, ease: 'none',
-        scrollTrigger: { trigger: containerRef.current, start: 'top top', end: 'bottom top', scrub: 1.4 },
+      gsap.registerPlugin(ScrollTrigger)
+
+      // Image reveal — fade in from slightly scaled down
+      gsap.from(imgRef.current, {
+        scale: 1.08,
+        opacity: 0,
+        duration: 1.6,
+        ease: 'power3.out',
+        delay: 0.1,
       })
+
+      // Staggered text entry — fade + slide up
+      const tl = gsap.timeline({ delay: 0.4 })
+      tl.from('.hero-label',   { opacity: 0, y: 20, duration: 0.5, ease: 'power2.out' })
+        .from('.hero-heading', { opacity: 0, y: 40, duration: 0.9, ease: 'power2.out', stagger: 0.1 }, '-=0.2')
+        .from('.hero-sub',     { opacity: 0, y: 20, duration: 0.6, ease: 'power2.out' }, '-=0.3')
+        .from('.hero-cta',     { opacity: 0, y: 20, duration: 0.5, ease: 'power2.out' }, '-=0.25')
+        .from('.hero-stats',   { opacity: 0, y: 20, duration: 0.6, ease: 'power2.out', stagger: 0.08 }, '-=0.2')
+        .from('.hero-scroll',  { opacity: 0, duration: 0.5, ease: 'power2.out' }, '-=0.3')
+        .from('.hero-year',    { opacity: 0, duration: 0.5, ease: 'power2.out' }, '-=0.4')
+
+      // Scroll parallax on background image
+      gsap.to(imgRef.current, {
+        yPercent: -15,
+        ease: 'none',
+        scrollTrigger: {
+          trigger: containerRef.current,
+          start: 'top top',
+          end: 'bottom top',
+          scrub: 1.2,
+        },
+      })
+
+      // Scroll indicator pulse
       if (scrollIndRef.current) {
-        gsap.to(scrollIndRef.current, { opacity: 0.25, repeat: -1, yoyo: true, duration: 1.5, ease: 'sine.inOut', delay: 2.5 })
+        gsap.to(scrollIndRef.current, {
+          opacity: 0.3,
+          repeat: -1,
+          yoyo: true,
+          duration: 1.4,
+          ease: 'sine.inOut',
+          delay: 2,
+        })
       }
     }, containerRef)
+
     return () => ctx.revert()
   }, [])
 
+  /* ── 2. Mouse parallax on hero image ─────────────────────────────── */
   useLayoutEffect(() => {
     if (!imgRef.current) return
+
     const ctx = gsap.context(() => {
       const el = imgRef.current
-      const onMove = (e) => {
-        const x = (e.clientX / window.innerWidth  - 0.5) * 18
-        const y = (e.clientY / window.innerHeight - 0.5) * 18
-        gsap.to(el, { x, y, duration: 0.9, ease: 'power2.out', overwrite: 'auto' })
+
+      const move = (e) => {
+        const { innerWidth, innerHeight } = window
+        const x = (e.clientX / innerWidth  - 0.5) * 20
+        const y = (e.clientY / innerHeight - 0.5) * 20
+        gsap.to(el, { x, y, duration: 0.8, ease: 'power2.out', overwrite: 'auto' })
       }
-      const onLeave = () => gsap.to(el, { x: 0, y: 0, duration: 0.9, ease: 'power2.out' })
-      window.addEventListener('mousemove', onMove, { passive: true })
-      window.addEventListener('mouseleave', onLeave)
-      return () => { window.removeEventListener('mousemove', onMove); window.removeEventListener('mouseleave', onLeave) }
+
+      const reset = () => {
+        gsap.to(el, { x: 0, y: 0, duration: 0.8, ease: 'power2.out' })
+      }
+
+      window.addEventListener('mousemove', move, { passive: true })
+      window.addEventListener('mouseleave', reset)
+
+      return () => {
+        window.removeEventListener('mousemove', move)
+        window.removeEventListener('mouseleave', reset)
+      }
     }, imgRef)
+
     return () => ctx.revert()
   }, [])
 
+  /* ── 3. CTA Button fill LEFT → RIGHT ─────────────────────────────── */
   useLayoutEffect(() => {
     if (!ctaRef.current) return
+
     const ctx = gsap.context(() => {
       const btn  = ctaRef.current
-      const fill = btn.querySelector('.cta-fill')
-      const enter = () => gsap.to(fill, { scaleX: 1, duration: 0.38, ease: 'power2.out' })
-      const leave = () => gsap.to(fill, { scaleX: 0, duration: 0.32, ease: 'power2.in' })
+      const fill = btn.querySelector('.btn-fill')
+
+      const enter = () => gsap.to(fill, { scaleX: 1, duration: 0.4, ease: 'power2.out' })
+      const leave = () => gsap.to(fill, { scaleX: 0, duration: 0.35, ease: 'power2.in' })
+
       btn.addEventListener('mouseenter', enter)
       btn.addEventListener('mouseleave', leave)
-      return () => { btn.removeEventListener('mouseenter', enter); btn.removeEventListener('mouseleave', leave) }
+
+      return () => {
+        btn.removeEventListener('mouseenter', enter)
+        btn.removeEventListener('mouseleave', leave)
+      }
     }, ctaRef)
+
     return () => ctx.revert()
   }, [])
 
@@ -75,90 +125,95 @@ const Hero = () => {
   ]
 
   return (
+    /* Full-viewport hero — overflows the App padding via negative margins */
     <div
       ref={containerRef}
-      className="relative overflow-hidden -mx-4 sm:-mx-[5vw] md:-mx-[7vw] lg:-mx-[9vw]"
-      style={{ height: '100vh', minHeight: '640px' }}
+      className=' h-screen min-h-[600px] relative overflow-hidden -mx-4 sm:-mx-[5vw] md:-mx-[7vw] lg:-mx-[9vw]'
     >
-      <div className="absolute inset-0 overflow-hidden">
+      {/* Background image */}
+      <div className='absolute inset-0 overflow-hidden'>
         <img
           ref={imgRef}
           src={assets.hero_img}
-          alt="Forever — Premium Fashion"
-          className="w-full h-full object-cover object-center"
-          style={{ willChange: 'transform', transformOrigin: 'center center' }}
+          alt='Forever — Premium Fashion'
+          className='w-full h-full object-cover object-center will-change-transform origin-center'
         />
-        <div className="absolute inset-0 bg-gradient-to-b from-[#0E0D0B]/70 via-[#0E0D0B]/25 to-[#0E0D0B]/82" />
-        <div className="absolute inset-0 bg-gradient-to-r from-[#0E0D0B]/60 via-transparent to-transparent" />
-        <div className="absolute inset-0" style={{ background: 'radial-gradient(ellipse at center, transparent 40%, rgba(14,13,11,0.5) 100%)' }} />
+        {/* Dark gradient overlay */}
+        <div className='absolute inset-0 bg-linear-to-b from-[#1C1C1C]/60 via-[#1C1C1C]/30 to-[#1C1C1C]/75' />
+        <div className='absolute inset-0 bg-linear-to-r from-[#1C1C1C]/50 via-transparent to-transparent' />
       </div>
 
-      {/* Corner accents */}
-      <div className="absolute top-24 left-6 sm:left-10 flex flex-col gap-1">
-        <span className="block w-5 h-px bg-[#B8956A]/50" />
-        <span className="block w-px h-5 bg-[#B8956A]/50" />
-      </div>
-      <div className="absolute top-24 right-6 sm:right-10 flex flex-col items-end gap-1">
-        <span className="block w-5 h-px bg-[#B8956A]/50" />
-        <span className="block w-px h-5 bg-[#B8956A]/50 ml-auto" />
+      {/* "SS / 2025" — top right */}
+      <div className='hero-year absolute top-28 right-6 sm:right-10'>
+        <p className='jost text-white/40 text-[10px] tracking-[0.4em] uppercase font-light'>SS / 2025</p>
       </div>
 
-      <div className="hero-year absolute top-[6.5rem] right-6 sm:right-10">
-        <p className="jost text-white/30 text-[9px] tracking-[0.45em] uppercase font-light">SS / 2025</p>
-      </div>
+      {/* Main content — bottom-left aligned */}
+      <div className='absolute inset-0 flex flex-col justify-end pb-24 sm:pb-28 px-6 sm:px-[5vw] md:px-[7vw] lg:px-[9vw]'>
 
-      <div className="absolute inset-0 flex flex-col justify-end pb-24 sm:pb-28 px-6 sm:px-[5vw] md:px-[7vw] lg:px-[9vw]">
-        <div className="flex items-center gap-4 mb-5">
-          <p className="hero-label jost text-[#B8956A] text-[9px] sm:text-[10px] tracking-[0.5em] uppercase font-medium">New Collection</p>
-          <span className="hero-line block flex-1 max-w-[60px] h-px bg-[#B8956A]/50" />
-        </div>
+        {/* Label */}
+        <p className='hero-label jost text-[#B8956A] text-[10px] sm:text-xs tracking-[0.4em] uppercase font-medium mb-4'>
+          New Collection
+        </p>
 
-        <div className="mb-5 overflow-visible">
-          <h1 className="hero-heading playfair leading-[0.88] tracking-tight text-white font-normal"
-              style={{ fontSize: 'clamp(3.2rem,10.5vw,8.5rem)' }}>
+        {/* Heading */}
+        <div className='mb-4 overflow-hidden'>
+          <h1 className='hero-heading playfair text-[clamp(3rem,10vw,8rem)] leading-[0.9] tracking-tight text-white font-normal'>
             Wear the
           </h1>
-          <h1 className="hero-heading playfair leading-[0.88] tracking-tight text-[#C9A97A] font-normal italic"
-              style={{ fontSize: 'clamp(3.2rem,10.5vw,8.5rem)' }}>
+          <h1 className='hero-heading playfair text-[clamp(3rem,10vw,8rem)] leading-[0.9] tracking-tight text-[#B8956A] font-normal italic'>
             Moment
           </h1>
         </div>
 
-        <p className="hero-sub jost text-white/52 text-sm sm:text-[0.9rem] font-light tracking-wide mb-8 max-w-xs sm:max-w-sm leading-relaxed">
+        {/* Subline */}
+        <p className='hero-sub jost text-white/60 text-sm sm:text-base font-light tracking-wide mb-8 max-w-xs sm:max-w-sm'>
           Curated fashion for every story you choose to tell.
         </p>
 
-        <div className="hero-cta mb-12 sm:mb-16">
-          <Link to="/collection">
+        {/* CTA Button */}
+        <div className='hero-cta mb-12 sm:mb-16'>
+          <Link to='/collection'>
             <div
               ref={ctaRef}
-              className="relative overflow-hidden inline-flex items-center gap-3 bg-[#B8956A] px-7 py-3.5 cursor-pointer"
+              className='relative overflow-hidden inline-flex items-center gap-3 bg-[#B8956A] px-7 py-3.5 cursor-pointer group'
             >
-              <span className="cta-fill absolute inset-0 bg-[#C9A97A] origin-left block" style={{ transform: 'scaleX(0)' }} />
-              <span className="relative z-10 jost font-semibold text-[10px] tracking-[0.35em] uppercase text-[#1C1C1C]">Explore Collection</span>
-              <span className="relative z-10 text-[#1C1C1C] text-base leading-none">→</span>
+              {/* Hover fill */}
+              <span
+                className='btn-fill absolute inset-0 bg-[#D4B896] origin-left block scale-x-0'
+              />
+              <span className='relative z-10 jost font-semibold text-[11px] tracking-[0.3em] uppercase text-[#1C1C1C]'>
+                Explore Collection
+              </span>
+              <span className='relative z-10 text-[#1C1C1C] text-base leading-none'>→</span>
             </div>
           </Link>
         </div>
 
-        <div className="flex items-center gap-8 sm:gap-14">
-          {stats.map((s) => (
-            <div key={s.label} className="hero-stat">
-              <p className="playfair text-white text-xl sm:text-2xl font-medium leading-none">{s.value}</p>
-              <p className="jost text-white/35 text-[9px] sm:text-[10px] tracking-[0.28em] uppercase mt-1 font-light">{s.label}</p>
+        {/* Stats bar */}
+        <div className='flex items-center gap-8 sm:gap-16'>
+          {stats.map((s, i) => (
+            <div key={i} className='hero-stats'>
+              <p className='playfair text-white text-lg sm:text-2xl font-medium leading-none'>{s.value}</p>
+              <p className='jost text-white/40 text-[9px] sm:text-[10px] tracking-[0.25em] uppercase mt-1 font-light'>{s.label}</p>
             </div>
           ))}
         </div>
       </div>
 
-      <div className="hero-scroll absolute right-6 sm:right-8 bottom-28 sm:bottom-32 flex flex-col items-center gap-3">
-        <p ref={scrollIndRef} className="jost text-white/55 text-[9px] tracking-[0.42em] uppercase font-light" style={{ writingMode: 'vertical-rl' }}>
+      {/* Scroll indicator — right side vertical */}
+      <div className='hero-scroll absolute right-6 sm:right-8 bottom-28 sm:bottom-32 flex flex-col items-center gap-3'>
+        <p
+          ref={scrollIndRef}
+          className='jost text-white/60 text-[9px] [writing-mode:vertical-rl] tracking-[0.4em] uppercase font-light'
+        >
           Scroll
         </p>
-        <div className="w-px h-10 bg-white/15 overflow-hidden">
-          <div className="w-full bg-[#B8956A]" style={{ height: '50%', animation: 'slideDown 1.9s ease-in-out infinite' }} />
+        <div className='w-px h-10 bg-white/20 overflow-hidden'>
+          <div className='w-full h-1/2 bg-[#B8956A] animate-slideDown' />
         </div>
       </div>
+
     </div>
   )
 }
