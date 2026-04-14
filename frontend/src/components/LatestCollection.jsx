@@ -1,111 +1,320 @@
-import { useContext, useLayoutEffect, useRef, useState, useEffect } from 'react'
+import React, { useContext, useEffect, useRef, useState } from 'react'
 import { ShopContext } from '../context/Shop'
 import ProductItem from './ProductItem'
 import Title from './Title'
-import { gsap } from 'gsap'
+import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
-import { Link } from 'react-router-dom'
 
 gsap.registerPlugin(ScrollTrigger)
 
 const LatestCollection = () => {
-  const { products } = useContext(ShopContext)
-  const [latestProducts, setLatestProducts] = useState([])
+    const { products } = useContext(ShopContext)
+    const [latestProducts, setLatestProducts] = useState([])
 
-  const sectionRef = useRef(null)
-  const headingRef = useRef(null)
-  const subtextRef = useRef(null)
-  const dividerRef = useRef(null)
-  const gridRef    = useRef(null)
+    const sectionRef = useRef(null)
+    const headingRef = useRef(null)
+    const subtextRef = useRef(null)
+    const dividerLeftRef = useRef(null)
+    const dividerRightRef = useRef(null)
+    const dotRef = useRef(null)
+    const gridRef = useRef(null)
+    const ctaRef = useRef(null)
+    const bgTextRef = useRef(null)
+    const cardRefs = useRef([])
 
-  useEffect(() => {
-    setLatestProducts(products.slice(0, 12))
-  }, [products])
+    useEffect(() => {
+        setLatestProducts(products.slice(0, 12))
+    }, [products])
 
-  useLayoutEffect(() => {
-    if (!latestProducts.length || !sectionRef.current) return
+    useEffect(() => {
+        if (!latestProducts.length) return
 
-    const ctx = gsap.context(() => {
-      gsap.set(sectionRef.current, { opacity: 0 })
-      gsap.to(sectionRef.current, { opacity: 1, duration: 0.7, ease: 'power2.out', delay: 0.3 })
+        const ctx = gsap.context(() => {
 
-      gsap.from([headingRef.current, subtextRef.current], {
-        opacity: 0, y: 50, duration: 0.8, stagger: 0.15, ease: 'power2.out',
-        scrollTrigger: { trigger: headingRef.current, start: 'top 80%', once: true },
-      })
+            // Background parallax ghost text
+            if (bgTextRef.current) {
+                gsap.fromTo(bgTextRef.current,
+                    { y: 0 },
+                    {
+                        y: -80,
+                        ease: 'none',
+                        scrollTrigger: {
+                            trigger: sectionRef.current,
+                            start: 'top bottom',
+                            end: 'bottom top',
+                            scrub: 1.8,
+                        }
+                    }
+                )
+            }
 
-      gsap.from(dividerRef.current, {
-        scaleX: 0, transformOrigin: 'left center', duration: 0.9, ease: 'power2.inOut',
-        scrollTrigger: { trigger: dividerRef.current, start: 'top 88%', once: true },
-      })
+            // Section fade in
+            gsap.fromTo(sectionRef.current,
+                { opacity: 0 },
+                { opacity: 1, duration: 0.7, ease: 'power2.out' }
+            )
 
-      const cards = gridRef.current ? Array.from(gridRef.current.children) : []
-      gsap.from(cards, {
-        opacity: 0, y: 40, scale: 0.97, duration: 0.55,
-        stagger: { each: 0.07, from: 'start' }, ease: 'power2.out',
-        scrollTrigger: { trigger: gridRef.current, start: 'top 82%', once: true },
-      })
+            // Heading: clip-path reveal sweep
+            gsap.fromTo(headingRef.current,
+                { clipPath: 'inset(0 100% 0 0)', opacity: 0 },
+                {
+                    clipPath: 'inset(0 0% 0 0)',
+                    opacity: 1,
+                    duration: 1.1,
+                    ease: 'power4.out',
+                    scrollTrigger: {
+                        trigger: headingRef.current,
+                        start: 'top 88%',
+                        toggleActions: 'play none none none',
+                    }
+                }
+            )
 
-      cards.forEach((card) => {
-        card.addEventListener('mouseenter', () => gsap.to(card, { y: -6, scale: 1.02, duration: 0.3, ease: 'power2.out' }))
-        card.addEventListener('mouseleave', () => gsap.to(card, { y: 0, scale: 1, duration: 0.4, ease: 'power2.inOut' }))
-      })
-    }, sectionRef)
+            // Subtext: blur fade up
+            gsap.fromTo(subtextRef.current,
+                { y: 22, opacity: 0, filter: 'blur(6px)' },
+                {
+                    y: 0,
+                    opacity: 1,
+                    filter: 'blur(0px)',
+                    duration: 0.95,
+                    ease: 'power3.out',
+                    delay: 0.25,
+                    scrollTrigger: {
+                        trigger: subtextRef.current,
+                        start: 'top 90%',
+                        toggleActions: 'play none none none',
+                    }
+                }
+            )
 
-    return () => ctx.revert()
-  }, [latestProducts])
+            // Dividers expand outward from center
+            gsap.fromTo(dividerLeftRef.current,
+                { scaleX: 0, transformOrigin: 'right center' },
+                {
+                    scaleX: 1,
+                    duration: 0.85,
+                    ease: 'power2.inOut',
+                    scrollTrigger: {
+                        trigger: dividerLeftRef.current,
+                        start: 'top 90%',
+                        toggleActions: 'play none none none',
+                    }
+                }
+            )
+            gsap.fromTo(dividerRightRef.current,
+                { scaleX: 0, transformOrigin: 'left center' },
+                {
+                    scaleX: 1,
+                    duration: 0.85,
+                    ease: 'power2.inOut',
+                    scrollTrigger: {
+                        trigger: dividerRightRef.current,
+                        start: 'top 90%',
+                        toggleActions: 'play none none none',
+                    }
+                }
+            )
+            gsap.fromTo(dotRef.current,
+                { scale: 0, opacity: 0 },
+                {
+                    scale: 1,
+                    opacity: 1,
+                    duration: 0.55,
+                    ease: 'back.out(3)',
+                    delay: 0.4,
+                    scrollTrigger: {
+                        trigger: dotRef.current,
+                        start: 'top 90%',
+                        toggleActions: 'play none none none',
+                    }
+                }
+            )
 
-  return (
-    <section ref={sectionRef} className="my-16 sm:my-24 px-0" style={{ opacity: 0 }}>
+            // Cards: 3D tilt entrance stagger
+            const cards = cardRefs.current.filter(Boolean)
+            gsap.fromTo(cards,
+                {
+                    opacity: 0,
+                    y: 65,
+                    rotateX: 20,
+                    scale: 0.91,
+                    transformPerspective: 900,
+                },
+                {
+                    opacity: 1,
+                    y: 0,
+                    rotateX: 0,
+                    scale: 1,
+                    duration: 0.72,
+                    stagger: { each: 0.065, from: 'start', grid: 'auto', ease: 'power2.inOut' },
+                    ease: 'power3.out',
+                    scrollTrigger: {
+                        trigger: gridRef.current,
+                        start: 'top 84%',
+                        toggleActions: 'play none none none',
+                    }
+                }
+            )
 
-      {/* Section intro — split layout */}
-      <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-6 mb-10 sm:mb-14">
-        <div>
-          <p className="jost text-[9px] tracking-[0.45em] uppercase text-[#B8956A] font-medium mb-3">Arrivals</p>
-          <div ref={headingRef}>
-            <Title text1="Latest" text2="Collection" />
-          </div>
-        </div>
-        <div ref={subtextRef} className="sm:max-w-xs">
-          <div ref={dividerRef} className="flex items-center gap-3 mb-3">
-            <span className="block h-px bg-[#E2D9CC] flex-1 max-w-[50px]" />
-            <span className="w-1 h-1 rounded-full bg-[#B8956A] inline-block" />
-          </div>
-          <p className="jost text-sm text-[#6B6560] leading-relaxed font-light">
-            Clean lines, oversized fits, effortless layering. Neutral palettes and utility-inspired pieces for everyday versatility.
-          </p>
-        </div>
-      </div>
+            // Card interactive hover: magnetic lift + 3D tilt + image zoom
+            cards.forEach((card) => {
+                const imgEl = card.querySelector('img')
 
-      {/* Product Grid */}
-      <div ref={gridRef} className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 sm:gap-5 gap-y-6 sm:gap-y-10">
-        {latestProducts.map((item, index) => (
-          <div
-            key={item._id}
-            className="relative cursor-pointer"
-            style={{ willChange: 'transform' }}
-          >
-            {index < 3 && (
-              <span className="absolute top-2 left-2 z-10 text-[9px] tracking-[0.2em] uppercase px-2 py-1 bg-[#1C1C1C] text-[#F9F6F0] font-medium jost">
-                New
-              </span>
-            )}
-            <ProductItem id={item._id} image={item.image} name={item.name} price={item.price} />
-          </div>
-        ))}
-      </div>
+                const onEnter = () => {
+                    gsap.to(card, {
+                        y: -11,
+                        scale: 1.025,
+                        boxShadow: '0 24px 48px -8px rgba(0,0,0,0.14)',
+                        duration: 0.35,
+                        ease: 'power2.out',
+                    })
+                    if (imgEl) gsap.to(imgEl, { scale: 1.09, duration: 0.55, ease: 'power2.out' })
+                }
+                const onLeave = () => {
+                    gsap.to(card, {
+                        y: 0,
+                        scale: 1,
+                        rotateX: 0,
+                        rotateY: 0,
+                        boxShadow: '0 0px 0px rgba(0,0,0,0)',
+                        duration: 0.45,
+                        ease: 'power2.inOut',
+                    })
+                    if (imgEl) gsap.to(imgEl, { scale: 1, duration: 0.45, ease: 'power2.inOut' })
+                }
+                const onMove = (e) => {
+                    const rect = card.getBoundingClientRect()
+                    const x = ((e.clientX - rect.left) / rect.width - 0.5) * 12
+                    const y = ((e.clientY - rect.top) / rect.height - 0.5) * 12
+                    gsap.to(card, {
+                        rotateY: x,
+                        rotateX: -y,
+                        transformPerspective: 700,
+                        duration: 0.2,
+                        ease: 'power1.out',
+                    })
+                }
 
-      {/* View All */}
-      <div className="flex justify-center mt-12 sm:mt-16">
-        <Link
-          to="/collection"
-          className="jost text-[11px] tracking-[0.28em] uppercase border border-[#1C1C1C] text-[#1C1C1C] px-12 py-3.5 hover:bg-[#1C1C1C] hover:text-[#F9F6F0] transition-all duration-300 font-medium"
+                card.addEventListener('mouseenter', onEnter)
+                card.addEventListener('mouseleave', onLeave)
+                card.addEventListener('mousemove', onMove)
+            })
+
+            // CTA button rise
+            if (ctaRef.current) {
+                gsap.fromTo(ctaRef.current,
+                    { opacity: 0, y: 26 },
+                    {
+                        opacity: 1,
+                        y: 0,
+                        duration: 0.75,
+                        ease: 'power3.out',
+                        scrollTrigger: {
+                            trigger: ctaRef.current,
+                            start: 'top 92%',
+                            toggleActions: 'play none none none',
+                        }
+                    }
+                )
+
+                // CTA hover pulse
+                const btn = ctaRef.current.querySelector('button')
+                if (btn) {
+                    btn.addEventListener('mouseenter', () =>
+                        gsap.to(btn, { scale: 1.04, duration: 0.25, ease: 'power2.out' })
+                    )
+                    btn.addEventListener('mouseleave', () =>
+                        gsap.to(btn, { scale: 1, duration: 0.3, ease: 'power2.inOut' })
+                    )
+                }
+            }
+
+        }, sectionRef)
+
+        return () => ctx.revert()
+    }, [latestProducts])
+
+    return (
+        <div
+            ref={sectionRef}
+            className="my-6 px-4 sm:px-0 relative overflow-hidden font-sans opacity-0"
         >
-          View All
-        </Link>
-      </div>
-    </section>
-  )
+            {/* Ghost watermark */}
+            <div
+                ref={bgTextRef}
+                className="absolute z-0 inset-0 flex items-center justify-center pointer-events-none select-none overflow-hidden"
+                aria-hidden="true"
+            >
+                <span
+                    className="text-[#3A3A3A] font-black uppercase tracking-[0.4em] whitespace-nowrap text-[clamp(64px,14vw,200px)] opacity-[0.045]"
+                >
+                    LATEST
+                </span>
+            </div>
+
+            {/* Header */}
+            <div className="text-center py-3 relative z-0">
+                <div ref={headingRef} className="text-3xl sm:text-4xl clip-path-[inset(0_100%_0_0)]" >
+                    <Title text1={'Latest'} text2={'Collection'} />
+                </div>
+
+                <div className="flex items-center justify-center gap-3 my-2">
+                    <span
+                        ref={dividerLeftRef}
+                        className=" h-px bg-[#BBBAB6] inline-block w-[60px]"
+                    />
+                    <span
+                        ref={dotRef}
+                        className="w-1.5 h-1.5 rounded-full bg-[#C9B99A] inline-block scale-0"
+                    />
+                    <span
+                        ref={dividerRightRef}
+                        className="h-px bg-[#BBBAB6] inline-block w-[60px]"
+                    />
+                </div>
+
+                <p
+                    ref={subtextRef}
+                    className="w-3/4 m-auto text-sm sm:text-base text-[#6B6A66] leading-relaxed tracking-wide opacity-0"
+                >
+                    Where minimalism meets streetwear — clean lines, oversized fits, effortless layering.
+                    Neutral palettes, relaxed tailoring, and utility-inspired pieces designed for everyday versatility.
+                </p>
+            </div>
+
+            {/* Product Grid */}
+            <div
+                ref={gridRef}
+                className="grid grid-cols-2 z-1 sm:grid-cols-3 md:grid-cols-4 gap-4 gap-y-6 mt-4 relative"
+            >
+                {latestProducts.map((item, index) => (
+                    <div
+                        key={index}
+                        ref={el => { cardRefs.current[index] = el }}
+                        className="group relative bg-[#F7F6F4] border border-[#DDDBD7] rounded-sm overflow-hidden cursor-pointer transition-colors duration-300 hover:border-[#BBBAB6] will-change-transform opacity-0 [transform-3d]"
+                    >
+                        {index < 3 && (
+                            <span className="absolute top-2 left-2 z-10 text-[10px] tracking-widest uppercase px-2 py-0.5 bg-[#5C5244] text-[#F7F6F4] rounded-sm">
+                                New
+                            </span>
+                        )}
+                        <ProductItem id={item._id} image={item.image} name={item.name} price={item.price} />
+                    </div>
+                ))}
+            </div>
+
+            {/* View All CTA */}
+            <div ref={ctaRef} className="flex justify-center mt-6 opacity-0" >
+                <button
+                    className="text-xs tracking-[0.2em] uppercase border border-[#3A3A3A] text-[#3A3A3A] px-10 py-3 hover:bg-[#1A1A1A] hover:text-[#F7F6F4] hover:border-[#1A1A1A] transition-all duration-300 rounded-sm"
+                    onClick={() => window.location.href = '/collection'}
+                >
+                    View All
+                </button>
+            </div>
+        </div>
+    )
 }
 
 export default LatestCollection
