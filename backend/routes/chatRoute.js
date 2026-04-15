@@ -1,8 +1,7 @@
 import express from 'express'
-import { chatWithGemini } from '../controllers/chatController.js'
+import { chatWithAI } from '../controllers/chatController.js'
 
 const chatRouter = express.Router()
-
-chatRouter.post('/', chatWithGemini)
+chatRouter.post('/', chatWithAI)
 
 export default chatRouter
