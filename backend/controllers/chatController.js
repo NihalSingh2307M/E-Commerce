@@ -14,15 +14,12 @@ const chatWithGemini = async (req, res) => {
             return res.status(500).json({ success: false, message: 'Gemini API key not configured' })
         }
 
-        const model = genAI.getGenerativeModel(
-            {
-                model: 'gemini-2.0-flash',
-                systemInstruction: `You are a helpful shopping assistant for Forever, a premium fashion e-commerce store. 
+        const model = genAI.getGenerativeModel({
+            model: 'gemini-1.5-flash',
+            systemInstruction: `You are a helpful shopping assistant for Forever, a premium fashion e-commerce store. 
 You help customers with product recommendations, sizing, styling tips, order inquiries, and general fashion advice.
 Keep responses concise, friendly, and on-topic. If asked about unrelated topics, gently redirect to fashion or shopping.`,
-            },
-            { apiVersion: 'v1beta' }
-        )
+        })
 
         // Build chat history in Gemini format
         const formattedHistory = history
