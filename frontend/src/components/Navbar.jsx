@@ -8,11 +8,21 @@ const Navbar = () => {
   const [visible, setVisible] = useState(false)
   const [profileDropdown, setProfileDropdown] = useState(false)
   const [scrolled, setScrolled] = useState(false)
+  const closeTimerRef = useRef(null)
 
   const logoRef = useRef(null)
   const navLinksRef = useRef(null)
   const iconsRef = useRef(null)
   const navbarRef = useRef(null)
+
+  const openDropdown = () => {
+    if (closeTimerRef.current) clearTimeout(closeTimerRef.current)
+    setProfileDropdown(true)
+  }
+
+  const closeDropdown = () => {
+    closeTimerRef.current = setTimeout(() => setProfileDropdown(false), 250)
+  }
 
   const location = useLocation()
   const isHome = location.pathname === '/' || location.pathname === '/home'
@@ -110,7 +120,7 @@ const Navbar = () => {
           )}
 
           {/* Profile */}
-          <div className='relative' onMouseLeave={() => setProfileDropdown(false)}>
+          <div className='relative' onMouseEnter={token ? openDropdown : undefined} onMouseLeave={token ? closeDropdown : undefined}>
             <button
               onClick={() => token ? setProfileDropdown(!profileDropdown) : navigate('/login')}
               className={`w-8 h-8 flex items-center justify-center rounded-full ${isHome && !scrolled ? 'hover:bg-white/10' : 'hover:bg-ivory-dark'}`}
@@ -119,12 +129,12 @@ const Navbar = () => {
             </button>
 
             {token && profileDropdown && (
-              <div className='absolute right-0 top-full mt-2 z-50'>
+              <div className='absolute right-0 top-full mt-2 z-50' onMouseEnter={openDropdown} onMouseLeave={closeDropdown}>
                 <div className='flex flex-col w-40 py-2 bg-charcoal text-ivory rounded-sm shadow-xl text-xs'>
-                  <p className='px-5 py-2.5 hover:bg-charcoal-mid uppercase'>My Profile</p>
-                  <p onClick={() => navigate('/orders')} className='px-5 py-2.5 hover:bg-charcoal-mid uppercase'>Orders</p>
+                  <p className='px-5 py-2.5 hover:bg-charcoal-mid uppercase cursor-pointer'>My Profile</p>
+                  <p onClick={() => navigate('/orders')} className='px-5 py-2.5 hover:bg-charcoal-mid uppercase cursor-pointer'>Orders</p>
                   <div className='h-px bg-charcoal-mid mx-4 my-1'></div>
-                  <p onClick={logout} className='px-5 py-2.5 hover:bg-charcoal-mid text-gold uppercase'>Logout</p>
+                  <p onClick={logout} className='px-5 py-2.5 hover:bg-charcoal-mid text-gold uppercase cursor-pointer'>Logout</p>
                 </div>
               </div>
             )}
