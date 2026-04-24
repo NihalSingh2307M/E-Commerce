@@ -85,17 +85,19 @@ GET  /api/search/health    → compare MongoDB count vs index size
 ```
 
 ### 🤖 AI Style Assistant (Chatbot)
-Floating chat widget powered by **Groq** running **Llama 3.1 8B Instant**.
 
-- Fashion-scoped system prompt
-- Full conversation history passed on every request
-- GSAP-animated open/close panel
-- Typing indicator with animated dots
 
-**Endpoint:**
-```
+Description:
+AI fashion assistant powered by Groq (Llama 3.1 8B Instant).
+Handles styling advice and product recommendations with full conversation context.
+
+Features:
+- Fashion-scoped responses
+- Conversation memory via history
+- Vector search product suggestions
+- Returns UI-ready product cards
+
 POST /api/chat
-```
 
 ### 💳 Payments
 - **Stripe** — card payments via Stripe Checkout session
