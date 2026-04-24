@@ -36,7 +36,7 @@ const ProductCard = ({ product }) => {
                     {product.name}
                 </p>
                 <p className="jost text-[11px] text-gold mt-0.5 tracking-wider">
-                    ₹{product.price}
+                    ${product.price}
                 </p>
                 <p className="jost text-[9px] text-[#A89880] tracking-[0.15em] uppercase mt-0.5">
                     {product.subCategory}

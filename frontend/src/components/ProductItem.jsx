@@ -14,7 +14,7 @@ const ProductItem = ({ id, image, name, price }) => {
       style={{ textDecoration: 'none' }}
     >
       {/* Image Container */}
-      <div className="relative overflow-hidden aspect-[3/4] bg-neutral-800">
+      <div className="relative overflow-hidden aspect-3/4 bg-neutral-800">
         <img
           className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
           src={image[0]}
@@ -22,7 +22,7 @@ const ProductItem = ({ id, image, name, price }) => {
         />
 
         {/* Gradient overlay on hover */}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+        <div className="absolute inset-0 bg-linear-to-t from-black/70 via-black/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
 
         {/* Quick View pill */}
         <div className="absolute bottom-4 left-1/2 -translate-x-1/2 translate-y-8 group-hover:translate-y-0 opacity-0 group-hover:opacity-100 transition-all duration-400 ease-out">
