@@ -27,7 +27,7 @@ const chatWithAI = async (req, res) => {
 
                 if (products.length > 0) {
                     productContext = `\n\nRelevant products found for this query:\n${products
-                        .map((p, i) => `${i + 1}. ${p.name} — ₹${p.price} (${p.category}, ${p.subCategory})`)
+                        .map((p, i) => `${i + 1}. ${p.name} — $${p.price} (${p.category}, ${p.subCategory})`)
                         .join('\n')
                     }\n\nMention these products naturally in your reply. Do not list them — they are shown as cards in the UI.`
                 }
