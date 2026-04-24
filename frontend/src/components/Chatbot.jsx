@@ -1,13 +1,55 @@
-import { useRef, useState, useEffect, useLayoutEffect } from 'react'
+import { useRef, useState, useEffect, useLayoutEffect, useContext } from 'react'
 import { gsap } from 'gsap'
+import { useNavigate } from 'react-router'
 import axios from 'axios'
+import { ShopContext } from '../context/Shop'
 
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL
+
+const ProductCard = ({ product }) => {
+    const navigate = useNavigate()
+    const { products } = useContext(ShopContext)
+
+    const matched = products.find(p => p._id === product.id)
+
+    const handleClick = () => {
+        if (matched) {
+            navigate(`/product/${product.id}`)
+            window.scrollTo(0, 0)
+        }
+    }
+
+    return (
+        <div
+            onClick={handleClick}
+            className={`flex items-center gap-2.5 p-2 border border-[#E8E0D5] bg-white mt-1 ${matched ? 'cursor-pointer hover:border-gold transition-colors duration-200' : ''}`}
+        >
+            {matched?.image?.[0] && (
+                <img
+                    src={matched.image[0]}
+                    alt={product.name}
+                    className="w-12 h-14 object-cover shrink-0"
+                />
+            )}
+            <div className="min-w-0">
+                <p className="jost text-[11px] text-[#1C1C1C] leading-snug line-clamp-2 tracking-wide">
+                    {product.name}
+                </p>
+                <p className="jost text-[11px] text-gold mt-0.5 tracking-wider">
+                    ₹{product.price}
+                </p>
+                <p className="jost text-[9px] text-[#A89880] tracking-[0.15em] uppercase mt-0.5">
+                    {product.subCategory}
+                </p>
+            </div>
+        </div>
+    )
+}
 
 const Chatbot = () => {
     const [isOpen, setIsOpen] = useState(false)
     const [messages, setMessages] = useState([
-        { role: 'bot', text: 'Hello! I\'m your Forever style assistant. How can I help you today?' }
+        { role: 'bot', text: "Hello! I'm your Forever style assistant. How can I help you today?" }
     ])
     const [input, setInput] = useState('')
     const [isLoading, setIsLoading] = useState(false)
@@ -17,7 +59,6 @@ const Chatbot = () => {
     const messagesRef = useRef(null)
     const inputRef = useRef(null)
 
-    // Initial mount — hide panel, show FAB
     useLayoutEffect(() => {
         gsap.set(panelRef.current, { opacity: 0, y: 24, scale: 0.96, pointerEvents: 'none' })
         gsap.fromTo(
@@ -27,7 +68,6 @@ const Chatbot = () => {
         )
     }, [])
 
-    // Open / close animation
     useEffect(() => {
         if (isOpen) {
             gsap.to(panelRef.current, {
@@ -35,7 +75,6 @@ const Chatbot = () => {
                 duration: 0.38, ease: 'power3.out',
                 pointerEvents: 'auto',
             })
-            // Focus input after animation
             setTimeout(() => inputRef.current?.focus(), 380)
         } else {
             gsap.to(panelRef.current, {
@@ -46,14 +85,12 @@ const Chatbot = () => {
         }
     }, [isOpen])
 
-    // Scroll to bottom when messages change
     useEffect(() => {
         if (messagesRef.current) {
             messagesRef.current.scrollTop = messagesRef.current.scrollHeight
         }
     }, [messages, isLoading])
 
-    // Animate new message bubble in
     const animateLastMessage = () => {
         const bubbles = messagesRef.current?.querySelectorAll('.chat-bubble')
         if (!bubbles?.length) return
@@ -76,7 +113,6 @@ const Chatbot = () => {
         setInput('')
         setIsLoading(true)
 
-        // Build history for context (exclude the greeting, exclude last user msg)
         const history = messages
             .filter((m) => m.role !== 'bot' || messages.indexOf(m) !== 0)
             .map((m) => ({ role: m.role === 'user' ? 'user' : 'model', text: m.text }))
@@ -89,7 +125,8 @@ const Chatbot = () => {
 
             const botMsg = {
                 role: 'bot',
-                text: data.success ? data.reply : 'Sorry, I couldn\'t get a response. Please try again.',
+                text: data.success ? data.reply : "Sorry, I couldn't get a response. Please try again.",
+                products: data.products?.length > 0 ? data.products : null,
             }
             setMessages((prev) => [...prev, botMsg])
         } catch {
@@ -157,7 +194,7 @@ const Chatbot = () => {
                         {messages.map((msg, idx) => (
                             <div
                                 key={idx}
-                                className={`chat-bubble flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
+                                className={`chat-bubble flex flex-col ${msg.role === 'user' ? 'items-end' : 'items-start'}`}
                             >
                                 <div
                                     className={`max-w-[80%] px-3.5 py-2.5 text-sm leading-relaxed ${msg.role === 'user'
@@ -168,6 +205,18 @@ const Chatbot = () => {
                                 >
                                     {msg.text}
                                 </div>
+
+                                {/* Product cards below bot message */}
+                                {msg.role === 'bot' && msg.products?.length > 0 && (
+                                    <div className="w-full max-w-[90%] mt-2 space-y-1.5">
+                                        <p className="jost text-[9px] tracking-[0.2em] uppercase text-[#A89880]">
+                                            Suggested for you
+                                        </p>
+                                        {msg.products.map((product) => (
+                                            <ProductCard key={product.id} product={product} />
+                                        ))}
+                                    </div>
+                                )}
                             </div>
                         ))}
 
@@ -240,7 +289,6 @@ const Chatbot = () => {
                 )}
             </button>
 
-            {/* Typing dot animation keyframes — injected once, no CSS file */}
             <style>{`
         @keyframes chatbotPulse {
         0%, 80%, 100% { transform: scale(0.6); opacity: 0.4; }
