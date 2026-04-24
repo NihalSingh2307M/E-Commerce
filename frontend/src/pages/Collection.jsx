@@ -7,7 +7,7 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 gsap.registerPlugin(ScrollTrigger);
 
 const Collection = () => {
-  const { products, search, showSearch } = useContext(ShopContext);
+  const { products, search, showSearch, vectorResults, isSearching } = useContext(ShopContext);
   const [filterProducts, setFilterProducts] = useState([]);
   const [category, setCategory] = useState([]);
   const [subCategory, setSubCategory] = useState([]);
@@ -31,11 +31,24 @@ const Collection = () => {
 
   useEffect(() => {
     let productsCopy = products.slice();
+
     if (showSearch && search) {
-      productsCopy = productsCopy.filter((item) =>
-        item.name.toLowerCase().includes(search.toLowerCase())
-      );
+      if (vectorResults.length > 0) {
+        // Semantic vector search — filter by IDs returned from Endee
+        const ids = new Set(
+          vectorResults
+            .filter((r) => r.similarity > 0.35)
+            .map((r) => r.id)
+        );
+        productsCopy = productsCopy.filter((item) => ids.has(item._id));
+      } else {
+        // Fallback: exact name match while vector results are loading
+        productsCopy = productsCopy.filter((item) =>
+          item.name.toLowerCase().includes(search.toLowerCase())
+        );
+      }
     }
+
     if (category.length > 0) {
       productsCopy = productsCopy.filter((item) =>
         category.includes(item.category)
@@ -54,10 +67,18 @@ const Collection = () => {
         productsCopy.sort((a, b) => b.price - a.price);
         break;
       default:
+        // When using vector search, preserve similarity order from Endee
+        if (showSearch && search && vectorResults.length > 0) {
+          const order = vectorResults.map((r) => r.id);
+          productsCopy.sort(
+            (a, b) => order.indexOf(a._id) - order.indexOf(b._id)
+          );
+        }
         break;
     }
+
     setFilterProducts(productsCopy);
-  }, [products, search, showSearch, category, subCategory, sortType]);
+  }, [products, search, showSearch, vectorResults, category, subCategory, sortType]);
 
   useEffect(() => {
     const ctx = gsap.context(() => {
@@ -97,7 +118,7 @@ const Collection = () => {
         ref={headerRef}
         className="px-4 sm:px-[5vw] md:px-[7vw] lg:px-[9vw] pt-14 pb-8 border-b border-(--ivory-border)"
       >
-        <p className="text-[10px] tracking-[0.35em] uppercase mb-3 font-light text-(--charcoal-light)" >
+        <p className="text-[10px] tracking-[0.35em] uppercase mb-3 font-light text-(--charcoal-light)">
           Discover
         </p>
         <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
@@ -107,7 +128,9 @@ const Collection = () => {
               <span className="text-(--charcoal-light)">Collection</span>
             </h1>
             <p className="text-sm mt-3 font-light text-(--charcoal-light)">
-              {filterProducts.length} items
+              {isSearching
+                ? "Searching..."
+                : `${filterProducts.length} items`}
             </p>
           </div>
           <select
@@ -120,11 +143,11 @@ const Collection = () => {
           </select>
         </div>
 
-        <div className="mt-8 h-px bg-(--ivory-border) " />
+        <div className="mt-8 h-px bg-(--ivory-border)" />
 
         {/* Filter Pills */}
         <div ref={filtersRef} className="flex flex-wrap items-center gap-2 mt-6">
-          <span className="text-[10px] tracking-[0.3em] uppercase mr-2 font-light bg-(--charcoal-light)" >Filter</span>
+          <span className="text-[10px] tracking-[0.3em] uppercase mr-2 font-light bg-(--charcoal-light)">Filter</span>
           <div className="w-px h-4 bg-(--ivory-border)" />
           {["Men", "Women", "Kids"].map((cat) => (
             <button
@@ -167,7 +190,7 @@ const Collection = () => {
         </div>
       </div>
 
-      {/* Product Grid — full width, no sidebar */}
+      {/* Product Grid */}
       <div className="px-4 sm:px-[5vw] md:px-[7vw] lg:px-[9vw] py-10">
         <div
           ref={gridRef}
@@ -185,7 +208,7 @@ const Collection = () => {
           ))}
         </div>
 
-        {filterProducts.length === 0 && (
+        {filterProducts.length === 0 && !isSearching && (
           <div className="flex flex-col items-center justify-center py-32 text-center">
             <p className="text-6xl mb-4" style={{ color: "var(--ivory-border)" }}>∅</p>
             <p className="text-sm tracking-widest uppercase" style={{ color: "var(--charcoal-light)" }}>No items found</p>
