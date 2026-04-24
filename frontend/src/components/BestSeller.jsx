@@ -23,7 +23,8 @@ const BestSeller = () => {
     const rankRefs = useRef([])
 
     useEffect(() => {
-        setBestSeller(products.slice(0, 8))
+    const filtered = products.filter(p => p.bestseller)
+    setBestSeller(filtered.length > 0 ? filtered.slice(0, 8) : products.slice(0, 8))
     }, [products])
 
     useEffect(() => {
@@ -303,7 +304,7 @@ const BestSeller = () => {
                     <div
                         key={index}
                         ref={el => { cardRefs.current[index] = el }}
-                        className="group relative bg-[#F7F6F4] border border-[#DDDBD7] rounded-sm overflow-hidden cursor-pointer transition-colors duration-300 hover:border-[#BBBAB6]"
+                        className="group relative bg-ivory border border-[#DDDBD7] rounded-sm overflow-hidden cursor-pointer transition-colors duration-300 hover:border-[#BBBAB6]"
                         style={{ willChange: 'transform', opacity: 0, transformStyle: 'preserve-3d' }}
                     >
                         {/* Spotlight glow overlay — moves with cursor */}

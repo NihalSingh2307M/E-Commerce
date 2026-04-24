@@ -2,19 +2,39 @@ import React, { useContext, useEffect, useState } from 'react'
 import { ShopContext } from '../context/Shop'
 import Title from './Title';
 import ProductItem from './ProductItem';
+import axios from 'axios';
 
-const RelatableProducts = ({category, subCategory}) => {
-  const { products } = useContext(ShopContext);
+const RelatableProducts = ({ category, subCategory, productName, productDescription }) => {
+  const { products, backendUrl } = useContext(ShopContext);
   const [related, setRelated] = useState([]);
 
   useEffect(() => {
-    if (products.length > 0) {
-      let productsCopy = products.slice();
-      productsCopy = productsCopy.filter((item) => category === item.category);
-      productsCopy = productsCopy.filter((item) => subCategory === item.subCategory);
-      setRelated(productsCopy.slice(0, 5));
-    }
-  }, [products, category, subCategory])
+    if (!productName || products.length === 0) return;
+
+    const query = `${productName} ${productDescription || ''}`.trim();
+
+    axios.post(backendUrl + '/api/search', {
+      query,
+      topK: 6,
+      category, // optional filter — keeps results in same category
+    }).then(res => {
+      if (!res.data.success) return;
+      const ids = res.data.results.map(r => r.id);
+      // Map IDs back to full product objects (for image, sizes, etc.)
+      const matched = ids
+        .map(id => products.find(p => p._id === id))
+        .filter(Boolean)  // remove any IDs not yet in local products list
+        .slice(0, 5);
+      setRelated(matched);
+    }).catch(e => {
+      console.warn('[related] vector search failed, falling back to category filter', e.message);
+      // Fallback: original category-based filter
+      const fallback = products
+        .filter(item => item.category === category && item.subCategory === subCategory)
+        .slice(0, 5);
+      setRelated(fallback);
+    });
+  }, [productName, productDescription, products])
 
   return (
     <div className='my-16 sm:my-24'>

@@ -1,6 +1,7 @@
 import { useRef, useLayoutEffect } from 'react'
 import { Routes, Route } from 'react-router'
 import { gsap } from 'gsap'
+import CinematicCursor from './components/CinematicCursor'
 import Home         from './pages/Home'
 import Collection   from './pages/Collection'
 import About        from './pages/About'
@@ -42,6 +43,7 @@ const App = () => {
 
   return (
     <>
+      <CinematicCursor />
       {/* Loader overlay — always mounted, never conditionally removed */}
       <PageLoader loaderRef={loaderRef} onComplete={handleLoaderComplete} />
 

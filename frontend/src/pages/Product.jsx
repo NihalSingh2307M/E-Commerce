@@ -34,7 +34,7 @@ const Product = () => {
                 onClick={() => setImage(item)}
                 src={item}
                 key={index}
-                className={`w-[23%] sm:w-full shrink-0 cursor-pointer border-2 transition-all duration-200 object-cover aspect-square ${image === item ? 'border-[#B8956A]' : 'border-transparent hover:border-[#E2D9CC]'}`}
+                className={`w-[23%] sm:w-full shrink-0 cursor-pointer border-2 transition-all duration-200 object-cover aspect-square ${image === item ? 'border-gold' : 'border-transparent hover:border-[#E2D9CC]'}`}
                 alt=''
               />
             ))}
@@ -46,7 +46,7 @@ const Product = () => {
 
         {/* Info */}
         <div className='flex-1'>
-          <p className='jost text-[10px] tracking-[0.3em] uppercase text-[#B8956A] font-medium mb-2'>{productData.category} / {productData.subCategory}</p>
+          <p className='jost text-[10px] tracking-[0.3em] uppercase text-gold font-medium mb-2'>{productData.category} / {productData.subCategory}</p>
           <h1 className='playfair font-medium text-2xl sm:text-3xl text-[#1C1C1C] leading-tight mb-3'>{productData.name}</h1>
 
           <div className='flex items-center gap-1.5 mb-4'>
@@ -69,7 +69,7 @@ const Product = () => {
                   onClick={() => setSize(item)}
                   className={`jost min-w-11 py-2 px-3 text-xs font-medium border transition-all duration-200 ${item === size
                     ? 'bg-[#1C1C1C] text-[#F9F6F0] border-[#1C1C1C]'
-                    : 'bg-transparent text-[#3A3633] border-[#E2D9CC] hover:border-[#B8956A]'}`}
+                    : 'bg-transparent text-[#3A3633] border-[#E2D9CC] hover:border-gold'}`}
                   key={index}
                 >
                   {item}
@@ -80,7 +80,7 @@ const Product = () => {
 
           <button
             onClick={() => addToCart(productData._id, size)}
-            className='jost w-full sm:w-auto bg-[#1C1C1C] text-[#F9F6F0] px-12 py-3.5 text-[11px] tracking-[0.25em] uppercase font-medium hover:bg-[#B8956A] transition-colors duration-300 active:scale-95'
+            className='jost w-full sm:w-auto bg-[#1C1C1C] text-[#F9F6F0] px-12 py-3.5 text-[11px] tracking-[0.25em] uppercase font-medium hover:bg-gold transition-colors duration-300 active:scale-95'
           >
             Add to Cart
           </button>
@@ -89,7 +89,7 @@ const Product = () => {
             <div className='flex flex-col gap-2'>
               {['100% Original Product', 'Cash on delivery available', 'Easy return within 7 days'].map((item, i) => (
                 <div key={i} className='flex items-center gap-3'>
-                  <span className='w-1 h-1 rounded-full bg-[#B8956A] shrink-0'></span>
+                  <span className='w-1 h-1 rounded-full bg-gold shrink-0'></span>
                   <p className='jost text-xs text-[#6B6560] font-light tracking-wide'>{item}</p>
                 </div>
               ))}
@@ -98,7 +98,13 @@ const Product = () => {
         </div>
       </div>
 
-      <RelatableProducts category={productData.category} subCategory={productData.subCategory} />
+      {/* Pass name + description so RelatableProducts can do semantic vector search */}
+      <RelatableProducts
+        category={productData.category}
+        subCategory={productData.subCategory}
+        productName={productData.name}
+        productDescription={productData.description}
+      />
     </div>
   ) : <div className='opacity-0'></div>
 }

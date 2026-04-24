@@ -1,6 +1,6 @@
-import { createContext, useEffect,  useState } from "react";
+import { createContext, useEffect, useState } from "react";
 import { toast } from "react-toastify";
-import {useNavigate} from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import axios from 'axios'
 
 export const ShopContext = createContext();
@@ -11,9 +11,11 @@ const ShopContextProvider = (props) => {
     const backendUrl = import.meta.env.VITE_BACKEND_URL
     const [search, setSearch] = useState("");
     const [showSearch, setShowSearch] = useState(false);
+    const [vectorResults, setVectorResults] = useState([]);
+    const [isSearching, setIsSearching] = useState(false);
     const [cartItems, setCartItems] = useState({});
-    const [products,setProducts] = useState([]);
-    const [token,setToken] = useState('')
+    const [products, setProducts] = useState([]);
+    const [token, setToken] = useState('')
     const navigate = useNavigate();
 
     const addToCart = async (itemId, size) => {
@@ -42,10 +44,10 @@ const ShopContextProvider = (props) => {
         setCartItems(cartData);
         toast.success("Item added to cart");
 
-        if(token){
-            try{
-                await axios.post(backendUrl+'/api/cart/add',{itemId,size},{headers:{token}})
-            }catch(error){
+        if (token) {
+            try {
+                await axios.post(backendUrl + '/api/cart/add', { itemId, size }, { headers: { token } })
+            } catch (error) {
                 console.log(error)
                 toast.error(error.message)
             }
@@ -54,9 +56,7 @@ const ShopContextProvider = (props) => {
 
     const getCartCount = () => {
         let totalCount = 0;
-        // 'items' is the itemId (e.g., '123')
         for (const itemId in cartItems) {
-            // 'size' is the size (e.g., 'M')
             for (const size in cartItems[itemId]) {
                 if (cartItems[itemId][size] > 0) {
                     totalCount += cartItems[itemId][size];
@@ -66,72 +66,87 @@ const ShopContextProvider = (props) => {
         return totalCount;
     };
 
-    const updateQuantity = async(itemId,size,quantity) =>{
+    const updateQuantity = async (itemId, size, quantity) => {
         let cartData = structuredClone(cartItems);
         cartData[itemId][size] = quantity;
-
         setCartItems(cartData);
 
-        if(token){
-            try{
-                await axios.post(backendUrl +'/api/cart/update',{itemId,size,quantity},{headers:{token}})
-            }catch(error){
+        if (token) {
+            try {
+                await axios.post(backendUrl + '/api/cart/update', { itemId, size, quantity }, { headers: { token } })
+            } catch (error) {
                 console.log(error)
                 toast.error(error.message)
             }
         }
     }
 
-    const getCartAmount =  ()=>{
+    const getCartAmount = () => {
         let totalAmount = 0;
-        for(const items in cartItems){
-            let itemInfo = products.find((product) =>product._id === items);
-            for(const item in cartItems[items]){
-                try{
-                    if(cartItems[items][item]>0){
-                        totalAmount += itemInfo.price*cartItems[items][item]
+        for (const items in cartItems) {
+            let itemInfo = products.find((product) => product._id === items);
+            for (const item in cartItems[items]) {
+                try {
+                    if (cartItems[items][item] > 0) {
+                        totalAmount += itemInfo.price * cartItems[items][item]
                     }
-                }catch(error){`error is ${error}`}
+                } catch (error) { `error is ${error}` }
             }
-        }return totalAmount;
+        }
+        return totalAmount;
     }
 
     const getProductData = async () => {
-        try{
+        try {
             const response = await axios.get(backendUrl + '/api/product/list')
-            if(response.data.success){
+            if (response.data.success) {
                 setProducts(response.data.products)
-            }else{
+            } else {
                 toast.error(response.data.message)
             }
-
-        }catch(error){
+        } catch (error) {
             console.log(error)
             toast.error(error.message)
         }
     }
-    const getUserCart = async (token) => {
-        try{
-            const response = await axios.post(backendUrl + '/api/cart/get',{},{headers:{token}})
-            if(response.data.success)
-                setCartItems(response.data.cartData)
 
-        }catch(error){
+    const getUserCart = async (token) => {
+        try {
+            const response = await axios.post(backendUrl + '/api/cart/get', {}, { headers: { token } })
+            if (response.data.success)
+                setCartItems(response.data.cartData)
+        } catch (error) {
             console.log(error)
         }
     }
 
-    useEffect(()=>{
-            getProductData();
-    },[])
+    // Debounced vector search — fires 300ms after typing stops
+    useEffect(() => {
+        if (!search.trim()) { setVectorResults([]); return; }
+        const timer = setTimeout(async () => {
+            setIsSearching(true);
+            try {
+                const res = await axios.post(`${backendUrl}/api/search`, { query: search, topK: 20 });
+                if (res.data.success) setVectorResults(res.data.results);
+            } catch (e) {
+                console.warn('[search] vector search failed:', e.message);
+            } finally {
+                setIsSearching(false);
+            }
+        }, 300);
+        return () => clearTimeout(timer);
+    }, [search]);
 
-    useEffect(()=>{
-        if(!token && localStorage.getItem('token')){
+    useEffect(() => {
+        getProductData();
+    }, [])
+
+    useEffect(() => {
+        if (!token && localStorage.getItem('token')) {
             setToken(localStorage.getItem('token'))
             getUserCart(localStorage.getItem('token'))
-
         }
-    },[])
+    }, [])
 
     const value = {
         products,
@@ -141,6 +156,8 @@ const ShopContextProvider = (props) => {
         setSearch,
         showSearch,
         setShowSearch,
+        vectorResults,
+        isSearching,
         cartItems,
         addToCart,
         getCartCount,
@@ -152,6 +169,7 @@ const ShopContextProvider = (props) => {
         setToken,
         token
     };
+
     return (
         <ShopContext.Provider value={value}>{props.children}</ShopContext.Provider>
     );

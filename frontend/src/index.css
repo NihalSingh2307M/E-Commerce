@@ -96,6 +96,47 @@ input:focus, select:focus, textarea:focus {
 
 /*Home slide-down animation*/
 /* kept only ONE keyframe (removed duplicate) */
+/* Cinematic cursor */
+.cursor-dot,
+.cursor-ring {
+  position: fixed;
+  top: 0;
+  left: 0;
+  pointer-events: none;
+  z-index: 99999;
+  transform: translate(-50%, -50%);
+  border-radius: 9999px;
+}
+
+.cursor-dot {
+  width: 5px;
+  height: 5px;
+  background: var(--gold);
+}
+
+.cursor-ring {
+  width: 28px;
+  height: 28px;
+  border: 1px solid var(--gold);
+  opacity: 0.5;
+}
+
+@media (hover: none) {
+  .cursor-dot, .cursor-ring { display: none; }
+}
+
+/* Scroll progress bar */
+#scroll-progress {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: var(--gold);
+  z-index: 9999;
+  transform-origin: left;
+}
+
 @keyframes slideDown {
   0%   { transform: translateY(-100%); opacity: 0; }
   50%  { opacity: 1; }
