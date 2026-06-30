@@ -1,4 +1,4 @@
-import { searchProducts, syncAllProducts } from '../services/endeeService.js';
+import { searchProducts, syncAllProducts, getIndexInfo } from '../services/qdrantService.js';
 import productModel from '../../models/productModel.js';
 
 /**
@@ -31,7 +31,7 @@ export const semanticSearch = async (req, res) => {
 
 /**
  * POST /api/search/sync   (admin-only)
- * Bulk-indexes every product in MongoDB into Endee.
+ * Bulk-indexes every product in MongoDB into Qdrant.
  * Run once on first deploy or after bulk product changes.
  */
 export const syncIndex = async (req, res) => {
@@ -46,13 +46,25 @@ export const syncIndex = async (req, res) => {
 
 /**
  * GET /api/search/health  (public)
- * Returns MongoDB product count so you can compare against Endee index size.
- * If mongoCount doesn't match your Endee index, run /sync to fix it.
+ * Returns MongoDB product count alongside the live Qdrant collection size,
+ * so drift between the two (e.g. after a missed sync) is visible at a glance.
+ * If vectorIndexCount is null or doesn't match mongoCount, run /sync to fix it.
  */
 export const healthCheck = async (req, res) => {
     try {
         const mongoCount = await productModel.countDocuments();
-        return res.json({ success: true, mongoCount });
+
+        let vectorIndexCount = null;
+        let vectorIndexStatus = 'unreachable';
+        try {
+            const index = await getIndexInfo();
+            vectorIndexCount = index.total_elements ?? null;
+            vectorIndexStatus = 'ok';
+        } catch (indexErr) {
+            vectorIndexStatus = indexErr.message;
+        }
+
+        return res.json({ success: true, mongoCount, vectorIndexCount, vectorIndexStatus });
     } catch (error) {
         console.error('[searchController] healthCheck error:', error.message);
         return res.status(500).json({ success: false, message: error.message });
